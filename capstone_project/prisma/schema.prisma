@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  firstName   String
+  lastName    String
+  userName    String       @unique
+  email       String       @unique
+  password    String
+  role        String
+  userProfile UserProfile?
+}
+
+model UserProfile {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  telephone   String?
+  userPhoto   String?
+  rating      Float?
+  bio         String?
+  jobTitle    String?
+  website     String?
+  companyName String?
+  address     Address?
+  project     UserProject[]
+  media       Media[]
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String        @unique
+}
+
+model Address {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  streetNumber String
+  streetName   String
+  cityName     String
+  state        String
+  zipcode      Int
+  userProfile  UserProfile? @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  addressId    String       @unique
+}
+
+model UserProject {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  projectName      String?
+  projectType      String?
+  formName         String?
+  formType         String?
+  description      String?
+  notes            String?
+  totalPrice       Float?
+  timeCreated      DateTime
+  timeDue          DateTime?
+  projectQuote String?
+  projectQuoteTotal Float?
+  projectRecipient String?
+  projectAccepted  Boolean?
+  userProfile      UserProfile?      @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId    String
+  userFormContent  UserFormContent[]
+}
+
+model UserFormContent {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  serviceName        String?
+  serviceType        String?
+  serviceDescription String?
+  servicePer         String?
+  servicePrice       Float?
+  serviceRate        Float?
+  servicePriceTotal  Float?
+
+  userProject   UserProject? @relation(fields: [userProjectId], references: [id])
+  userProjectId String      
+}
+
+model Media {
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
+  mediaName        String?
+  mediaType        String?
+  mediaUrl         String?
+  mediaDescription String?
+  userProfile      UserProfile? @relation(fields: [mediaId], references: [id])
+  mediaId          String       @unique
+}
